@@ -1,5 +1,8 @@
 
 
+
+
+
 function hash(key) {
     let hashCode = 0;
 
@@ -62,10 +65,10 @@ class HashMap {
     
 
       checkMaxCapacity() {
-        const count = this.count;
-        const maxLoadFactor = this.maxLoadFactor;
+        const currentCount = this.count;
+        const currMaxLoadFactor = this.maxLoadFactor;
 
-        if (count > maxLoadFactor) {
+        if (currentCount > currMaxLoadFactor) {
             const entries = this.entries();
             this.clear();
             this.capacity = this.capacity * 2;
@@ -81,10 +84,16 @@ class HashMap {
 
     get(key) {
         const fKey = hash(key) % this.capacity;
-        const entry = this.buckets[fKey];
-        if (entry && this.buckets[fKey].key === key) {
-            return this.buckets[fKey].value;
+        const thisBucket = this.buckets[fKey];
+
+        if (!thisBucket) return null;
+        
+        for (let i = 0; i < thisBucket.length; i++) {
+            if (thisBucket[i].key === key) {
+                return thisBucket[i].value;
+            }
         }
+
         return null;
     }
 
@@ -92,16 +101,15 @@ class HashMap {
         const fKey = hash(key) % this.capacity;
         const bucket = this.buckets[fKey];
 
-        if(!bucket) return false;
-        
+        if (!bucket) return false;
+
         for (let i = 0; i < bucket.length; i++) {
-            if(bucket[i].key === key) {
+            if (bucket[i].key === key) {
                 return true;
             }
-            else {
-                return false;
-            }
         }
+
+        return false;
     }
 
     remove(key) {
@@ -112,6 +120,7 @@ class HashMap {
         for (let i = 0; i < bucket.length; i++) {
             if(bucket[i].key === key) {
                 bucket.splice(i, 1);
+                this.count--;
                 return true;
             }
         }
@@ -120,11 +129,9 @@ class HashMap {
 
     length() {
         let count = 0;
-        for (let i = 0; i < this.capacity; i++) {
-            if (this.buckets[i] !== undefined) {
-                count++
-            }
-        }
+        this.buckets.forEach(bucket => {
+            count += bucket.length;
+        });
         return count;
     }
 
@@ -199,7 +206,6 @@ test.set('lion', 'golden')
 
 console.log(test);
 
-test.set('moon', 'silver');
-console.log(test);
+console.log(test.buckets);
 
-
+console.log(test.length());
